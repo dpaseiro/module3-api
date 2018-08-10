@@ -19,7 +19,7 @@ passportSetup(passport);
 
 mongoose.Promise = Promise;
 mongoose
-  .connect(process.env.MONGO_URI, {useMongoClient: true})
+  .connect(mongoose.connect(process.env.MONGODB_URI), {useMongoClient: true})
   .then(() => {
     console.log('Connected to Mongo!')
   }).catch(err => {
@@ -90,5 +90,9 @@ app.use('', groupRoutes)
 const eventRoutes = require('./routes/event-routes');
 app.use('', eventRoutes)
 
+
+app.use((req, res, next) => {
+  res.sendfile(__dirname + '/public/index.html');
+});
 
 module.exports = app;
