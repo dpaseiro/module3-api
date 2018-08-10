@@ -7,6 +7,7 @@ const User       = require('../models/user');
 
 // SIGNUP
 userRoutes.post('/signup', (req, res, next) => {
+  console.log('body: ', req.body)
     const username = req.body.username;
     const password = req.body.password;
     const theEmail = req.body.email;

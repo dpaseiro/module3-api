@@ -20,16 +20,20 @@ commentRoutes.get('/comment/:id', (req, res, next)=>{
 commentRoutes.post('/group/:id/comment', (req, res, next) => {
     const theComment = new Comment({
         comment: req.body.comment,
-        group: req.params.id
+        commentFor: req.params.id,
+        author: req.user.id
     });
     theComment.save()
-      .then((response) => {
+      .then((savedComment) => {
+          console.log("saved comment ============ ", savedComment)
         Group.findById(req.params.id)
         .then(thatGroup => {
-            thatGroup.comment.push(response._id);
+            console.log('thatGroup: ', thatGroup)
+            thatGroup.comments.push(savedComment._id);
             thatGroup.save()
-            .then(()=>{
-              res.json(response);
+            .then((savedGroup)=>{
+                console.log('saved: ', savedGroup)
+              res.json(savedComment);
             })
             .catch((err)=>{
               res.json(err);

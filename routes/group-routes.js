@@ -5,13 +5,29 @@ const ensureLogin   = require('connect-ensure-login');
 
 const Group          = require('../models/group');
  
+// SEARCH
+groupRoutes.post('/group/search', (req, res, next) =>{
+    const searchTerm = req.body.search;
+
+    Group.findOne({name: searchTerm})
+    .then((group) => {
+        console.log(group)
+        res.status(200).json(group)
+});
+
+});
+
+
 // CREATE GROUP
 groupRoutes.post('/group/create', (req, res, next) => {
     const name        = req.body.name;
-    const author      = req.body.username;
-    const members     = [req.body._id];
+    const author      = req.user._id;
+    // const members     = [req.body._id];
     const description = req.body.description;
     const gameTitle   = req.body.gameTitle;
+    const avatar      = req.body.avatar;
+    const location    = req.body.location;
+
 
     if (!name) {
       res.status(400).json({ message: 'name this group' });
@@ -26,27 +42,35 @@ groupRoutes.post('/group/create', (req, res, next) => {
 
       const theGroup = new Group({
         name: name,
-        auther: author,
-        members: members,
+        author: author,
+        // members: members,
         description: description,
-        gameTitle: gameTitle
-      });
+        gameTitle: gameTitle,
+        location: location,
+        avatar: avatar,
+
+    });
      console.log('.............................', theGroup)
       theGroup.save((err) => {
         if (err) {
+            console.log("error saving =============== ", err)
           res.status(400).json({ message: 'Something went wrong with the save', err });
           return;
         }
         
-        res.status(201).json({message: 'success'});
+        res.status(201).json(theGroup);
         });
       });
 });
 
 // GRAB INFO FOR GROUP
-groupRoutes.get('/group', (req, res, next)=>{
+groupRoutes.get('/group/:id', (req, res, next)=>{
     Group.findById(req.params.id)
+    .populate('author', 'username')
+    .populate('comments')
+    .populate({path:'comments', populate: {path: 'author', model:'User'}})
     .then((theGroup) => {
+        console.log('after populate: ', theGroup)
         res.status(200).json(theGroup)
     })
 });
@@ -63,6 +87,7 @@ groupRoutes.post('/group/update', (req, res, next)=>{
         theGroup.description = req.body.description;
         theGroup.comments = req.body.comments;
         theGroup.gameTitle = req.body.gameTitle;
+        theGroup.avatar = req.body.avatar;
        
         // if(req.file){
         //     theUser.avatar = req.file.url;
@@ -75,18 +100,17 @@ groupRoutes.post('/group/update', (req, res, next)=>{
         })
         .catch((err)=>{
             console.log("update did not work ++++++++++++++++++++++++++++++")
-            res.status(500).json({ message: 'database error'});
+            res.status(500).json(theGroup);
         });
     })
+});
 
     //DELETE GROUP
-groupRoutes.post('/group/delete', (req, res, next)=>{
-    Group.findByIdAndRemove(req.params.id)
-    .then((reponse)=>{
-        res.status(200).json("deleted");
-    })
-});
-
-});
+    groupRoutes.post('/group/:id/delete', (req, res, next)=>{
+        Group.findByIdAndRemove(req.params.id)
+        .then((reponse)=>{
+            res.status(200).json({message: "deleted"});
+        })
+    });
 
 module.exports = groupRoutes

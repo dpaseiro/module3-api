@@ -2,37 +2,18 @@ const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 const groupSchema = new Schema ({
-    name: {
-        type: String, required: true
-    },
+    name: String,
     author: {
-        type: Schema.Types.ObjectId
+        type: Schema.Types.ObjectId, ref: "User"
     },
     avatar: String,
+    location: String,
     members: [{type: Schema.Types.ObjectId}],
     description: String,
-    comments: [{type: Schema.Types.ObjectId}],
+    comments: [{type: Schema.Types.ObjectId, ref: "Comment"}],
     
     gameTitle: {
         type: String, 
-        enum: [
-            "Pota",
-            "200% Snake",
-            "Kitty Klicker",
-            "Space Dogfight",
-            "George vs. Arepa",
-            "TactClicks",
-            "SAGEOM",
-            "KanyeSnake",
-            "MazeOrc",
-            "Rhythm & Time",
-            "Humans vs. Orcs",
-            "Country Cow",
-            "Alien Invasion",
-            "Ping Pong",
-            "Star Wars Doodle Jump",
-            "Secure the Henny"
-        ],
     required: true
     }
 },
